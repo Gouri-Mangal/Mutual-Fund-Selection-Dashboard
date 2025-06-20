@@ -180,30 +180,39 @@ st.write(final_selection['SCHEMES'].tolist())
 #         st.write("Sum of absolute correlations for each selected fund:")
 #         st.write(row_sum_abs)
 
+# --- Load Data ---
+fund_files = st.file_uploader("Upload your Excel file", type=["csv"], accept_multiple_files=True)
+
 # --- Overlap Analysis Button ---
 if st.button("Show Overlap Heatmap (after placing CSVs)"):
-    file_names = [f for f in os.listdir(fundata_folder) if f.endswith('.csv')]
-    if not file_names:
-        st.warning(f"No CSV files found in '{fundata_folder}'. Please add the files and try again.")
-    else:
+    if fund_files:
+        # Build a mapping: filename → DataFrame
+        fund_dfs = {}
         unique_stocks = set()
-        for file_name in file_names:
-            df_scheme = pd.read_csv(f'{fundata_folder}/{file_name}')
+        for uploaded_file in fund_files:
+            df_scheme = pd.read_csv(uploaded_file)
+            fund_dfs[uploaded_file.name] = df_scheme
             unique_stocks.update(df_scheme['Invested In'])
-        stock_df = pd.DataFrame(0, index=sorted(unique_stocks), columns=file_names)
-        for file_name in file_names:
-            df_scheme = pd.read_csv(f'{fundata_folder}/{file_name}')
+
+        # Build the stock_df DataFrame
+        stock_df = pd.DataFrame(0, index=sorted(unique_stocks), columns=[f.name for f in fund_files])
+        for uploaded_file in fund_files:
+            df_scheme = fund_dfs[uploaded_file.name]
             for _, row in df_scheme.iterrows():
                 stock = row['Invested In']
                 percent = row['% of Total Holding']
-                stock_df.at[stock, file_name] = percent
+                stock_df.at[stock, uploaded_file.name] = percent
+
+        # Now you can do your overlap analysis as before
         corr_mf = stock_df.corr()
         fig, ax = plt.subplots(figsize=(8, 6))
         sns.heatmap(corr_mf, annot=True, cmap='YlGnBu', fmt='.2f', ax=ax)
         st.pyplot(fig)
-        row_sum = corr_mf.sum(axis=1).sort_values(ascending=True)
-        st.subheader("Sum of correlations for each fund:")
-        st.write(row_sum)
+        row_sum_abs = corr_mf.abs().sum(axis=1).sort_values(ascending=True)
+        st.write("Sum of absolute correlations for each selected fund:")
+        st.write(row_sum_abs)
+    else:
+        st.info("Please upload your holdings CSV files above to run overlap analysis.")
 
 
 # # --- Custom Overlap Analysis for Selected Schemes ---

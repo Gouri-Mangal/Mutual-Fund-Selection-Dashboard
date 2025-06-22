@@ -27,41 +27,41 @@ category_rules = {
         "sortino_weight": 0},
 
     "Conservative": {
-        "remove_category": "equity: mid cap",
+        "remove_category": ["equity: mid cap", "equity: multi cap", "equity: small cap"],
         "aum_min": 10000,
-        "sharpe_weight": 0.3,
-        "sortino_weight": 0.7,
+        "sharpe_weight": 0.0,
+        "sortino_weight": 1.0,
     },
     "Moderate Conservative": {
-        "remove_category": "equity: mid cap",
+        "remove_category": ["equity: mid cap", "equity: small cap"],
         "aum_min": 10000,
-        "sharpe_weight": 0.4,
-        "sortino_weight": 0.6,
+        "sharpe_weight": 0.25,
+        "sortino_weight": 0.75,
     },
     "Moderate": {
-        "remove_category": "equity: mid cap",
+        "remove_category": ["equity: small cap"], 
         "aum_min": 10000,
         "sharpe_weight": 0.5,
         "sortino_weight": 0.5,
     },
     "Moderate Aggressive": {
-        "remove_category": "",
+        "remove_category": ["equity: large cap"],
         "aum_min": 10000,
-        "sharpe_weight": 0.6,
-        "sortino_weight": 0.4,
+        "sharpe_weight": 0.75,
+        "sortino_weight": 0.25,
     },
     "Aggressive": {
-        "remove_category": "",
+        "remove_category": ["equity: large cap"],
         "aum_min": 10000,
-        "sharpe_weight": 0.7,
-        "sortino_weight": 0.3,
+        "sharpe_weight": 1.0,
+        "sortino_weight": 0.0,
     }
 }
 
 # --- Helper Functions ---
 def filter_funds(df, remove_category, aum_min):
     if remove_category:
-        df_filtered = df[~df['CATEGORY'].str.strip().str.lower().eq(remove_category)]
+        df_filtered = df[~df['CATEGORY'].str.strip().str.lower().isin(remove_category)]
     else:
         df_filtered = df.copy()
     df_filtered = df_filtered[df_filtered['AUM(CR)'] >= aum_min]
@@ -92,7 +92,6 @@ rules = category_rules[category]
 if category == "Not Selected":
     st.warning("Please select a risk category to proceed.")
     st.stop()
-
 
 aum_min = st.sidebar.number_input("AUM Minimum (Cr)", value=rules['aum_min'])
 sharpe_weight = st.sidebar.slider("Sharpe Weight", 0.0, 1.0, rules['sharpe_weight'])

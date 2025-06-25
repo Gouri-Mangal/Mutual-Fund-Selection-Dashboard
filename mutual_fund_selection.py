@@ -21,47 +21,53 @@ else:
 
 # --- Category Rules ---
 category_rules = {
-    "Not Selected" :  { "remove_category": "",
-        "aum_min": 0,
-        "sharpe_weight": 0,
-        "sortino_weight": 0},
 
+
+    "Not Selected": {"include_category":[],
+        "aum_min": 0,
+        "sharpe_weight": 0.0,
+
+        "sortino_weight": 0.0,
+
+    },
     "Conservative": {
-        "remove_category": ["equity: mid cap", "equity: multi cap", "equity: small cap"],
+        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value", "hybrid: balanced advantage","hybrid: conservative", "hybrid: equity savings", "hybrid: multi-asset"],
         "aum_min": 10000,
         "sharpe_weight": 0.0,
         "sortino_weight": 1.0,
     },
     "Moderate Conservative": {
-        "remove_category": ["equity: mid cap", "equity: small cap"],
+        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value", "hybrid: balanced advantage","hybrid: conservative", "hybrid: equity savings", "hybrid: multi-asset"],
         "aum_min": 10000,
         "sharpe_weight": 0.25,
         "sortino_weight": 0.75,
     },
     "Moderate": {
-        "remove_category": ["equity: small cap"], 
+        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: focused"],
         "aum_min": 10000,
         "sharpe_weight": 0.5,
         "sortino_weight": 0.5,
     },
     "Moderate Aggressive": {
-        "remove_category": ["equity: large cap"],
+        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused"],
         "aum_min": 10000,
         "sharpe_weight": 0.75,
         "sortino_weight": 0.25,
     },
     "Aggressive": {
-        "remove_category": ["equity: large cap"],
+        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused", "equity: sectoral", "equity: small cap", "equity: thematic"],
         "aum_min": 10000,
         "sharpe_weight": 1.0,
         "sortino_weight": 0.0,
     }
 }
 
+mappings = pd.read_csv("mappings.csv")
+
 # --- Helper Functions ---
-def filter_funds(df, remove_category, aum_min):
-    if remove_category:
-        df_filtered = df[~df['CATEGORY'].str.strip().str.lower().isin(remove_category)]
+def filter_funds(df, include_category, aum_min):
+    if include_category:
+        df_filtered = df[df['CATEGORY'].str.strip().str.lower().isin(include_category)]
     else:
         df_filtered = df.copy()
     df_filtered = df_filtered[df_filtered['AUM(CR)'] >= aum_min]
@@ -76,22 +82,28 @@ def score_funds(df, sharpe_weight, sortino_weight):
     )
     return df.sort_values('Sharpe_Sortino_Score', ascending=False)
 
-def scheme_to_filename(scheme):
-    # Adjust this function to match your naming convention
-    return (
-        scheme.replace(" ", "_")
-              .replace("(", "")
-              .replace(")", "")
-              .replace("-", "_")
-              + ".csv"
-    )
-
 # --- Sidebar Controls ---
 category = st.sidebar.selectbox("Select Risk Category", list(category_rules.keys()))
 rules = category_rules[category]
 if category == "Not Selected":
     st.warning("Please select a risk category to proceed.")
     st.stop()
+# Get lowercase raw categories
+all_categories_raw = sorted(df['CATEGORY'].str.strip().str.lower().unique())
+
+# Capitalize for display
+all_categories = [cat.title() for cat in all_categories_raw]
+default_categories = [cat.title() for cat in rules["include_category"]]
+
+# Multiselect with capitalized options
+include_category_display = st.sidebar.multiselect(
+    "Manually Select Categories to Include",
+    options=all_categories,
+    default=default_categories
+)
+
+# Convert back to lowercase for filtering logic
+include_category = [cat.lower() for cat in include_category_display]
 
 aum_min = st.sidebar.number_input("AUM Minimum (Cr)", value=rules['aum_min'])
 sharpe_weight = st.sidebar.slider("Sharpe Weight", 0.0, 1.0, rules['sharpe_weight'])
@@ -99,7 +111,7 @@ sortino_weight = st.sidebar.slider("Sortino Weight", 0.0, 1.0, rules['sortino_we
 top_n = st.sidebar.slider("Number of Top Funds", min_value=5, max_value=50, value=10)
 
 # --- Filtering and Scoring ---
-df_filtered = filter_funds(df, rules['remove_category'], aum_min)
+df_filtered = filter_funds(df, include_category, aum_min)
 df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight)
 
 # --- Personal Selection Widget ---
@@ -183,6 +195,18 @@ st.write(final_selection['SCHEMES'].tolist())
 # --- Load Data ---
 fund_files = st.file_uploader("Upload your Excel file", type=["csv"], accept_multiple_files=True)
 
+# --- Map SCHEME names to CSV filenames using mapping DataFrame ---
+final_selection_with_csv = final_selection.merge(
+    mappings[['Investwell', 'CSV']],
+    left_on='SCHEMES',
+    right_on='Investwell',
+    how='left'
+)
+
+# Build list of file paths for available CSVs
+
+
+
 # --- Overlap Analysis Button ---
 if st.button("Show Overlap Heatmap (after placing CSVs)"):
     if fund_files:
@@ -190,6 +214,9 @@ if st.button("Show Overlap Heatmap (after placing CSVs)"):
         fund_dfs = {}
         unique_stocks = set()
         for uploaded_file in fund_files:
+
+
+
             df_scheme = pd.read_csv(uploaded_file)
             fund_dfs[uploaded_file.name] = df_scheme
             unique_stocks.update(df_scheme['Invested In'])

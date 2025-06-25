@@ -212,7 +212,7 @@ if st.button("Show Overlap Heatmap (after placing CSVs)"):
         # Now you can do your overlap analysis as before
         corr_mf = stock_df.corr()
         fig, ax = plt.subplots(figsize=(8, 6))
-        sns.heatmap(corr_mf, annot=True, cmap='YlGnBu', fmt='.2f', ax=ax, annot_kws={"size": 10})
+        sns.heatmap(corr_mf, annot=True, cmap='YlGnBu', fmt='.2f', ax=ax, annot_kws={"size": 14})
         st.pyplot(fig)
         row_sum_abs = corr_mf.abs().sum(axis=1).sort_values(ascending=True)
         st.write("Sum of absolute correlations for each selected fund:")

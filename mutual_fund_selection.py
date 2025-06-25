@@ -28,13 +28,13 @@ category_rules = {
 
     },
     "Conservative": {
-        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value", "hybrid: balanced advantage","hybrid: conservative", "hybrid: equity savings", "hybrid: multi-asset"],
+        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"],
         "aum_min": 10000,
         "sharpe_weight": 0.0,
         "sortino_weight": 1.0,
     },
     "Moderate Conservative": {
-        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value", "hybrid: balanced advantage","hybrid: conservative", "hybrid: equity savings", "hybrid: multi-asset"],
+        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"],
         "aum_min": 10000,
         "sharpe_weight": 0.25,
         "sortino_weight": 0.75,
@@ -59,7 +59,14 @@ category_rules = {
     }
 }
 
-mappings = pd.read_csv("mappings.csv")
+uploaded_mappings = st.file_uploader("Upload mappings.csv (scheme-to-CSV mapping)", type=["csv"])
+if uploaded_mappings is not None:
+    mappings = pd.read_csv(uploaded_mappings)
+    st.success("Mappings file uploaded successfully!")
+else:
+    st.warning("Please upload mappings.csv to proceed.")
+    st.stop()
+
 
 # --- Helper Functions ---
 def filter_funds(df, include_category, aum_min):

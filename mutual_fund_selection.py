@@ -152,12 +152,16 @@ overlap_selection = st.multiselect(
 # Filter mapping based on overlap_selection only
 selected_mapping = mappings[mappings['Investwell'].isin(overlap_selection)]
 
-# Build list of file paths for available CSVs
-fund_files = []
-for csv_name in selected_mapping['CSV'].dropna().unique():
-    file_path = os.path.join("fundata", csv_name)
-    if os.path.exists(file_path + '.csv'):
-        fund_files.append(file_path + '.csv')
+uploaded_csvs = st.file_uploader(
+    "Upload Holdings CSVs for Overlap Analysis",
+    type=["csv"],
+    accept_multiple_files=True
+)
+
+# Filter only the uploaded files that match selected_mapping['CSV']
+required_csv_names = selected_mapping['CSV'].dropna().unique()
+fund_files = [f for f in uploaded_csvs if f.name.replace('.csv', '') in required_csv_names]
+
 
 
 
@@ -184,18 +188,19 @@ if st.button("Show Overlap Heatmap (after placing CSVs)"):
         # --- For local CSV files ---
         fund_dfs = {}
         unique_stocks = set()
-        for file_path in fund_files:
-            df_scheme = pd.read_csv(file_path)
-            fund_dfs[file_path] = df_scheme
+        for uploaded_file in fund_files:
+            df_scheme = pd.read_csv(uploaded_file)
+            fund_dfs[uploaded_file.name] = df_scheme
             unique_stocks.update(df_scheme['Invested In'])
 
-        stock_df = pd.DataFrame(0, index=sorted(unique_stocks), columns=fund_files)
-        for file_path in fund_files:
-            df_scheme = fund_dfs[file_path]
+        stock_df = pd.DataFrame(0, index=sorted(unique_stocks), columns=[f.name for f in fund_files])
+        for uploaded_file in fund_files:
+            df_scheme = fund_dfs[uploaded_file.name]
             for _, row in df_scheme.iterrows():
                 stock = row['Invested In']
                 percent = row['% of Total Holding']
-                stock_df.at[stock, file_path] = percent
+                stock_df.at[stock, uploaded_file.name] = percent
+
 
         # Now you can do your overlap analysis as before
         corr_mf = stock_df.corr()

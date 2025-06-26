@@ -6,6 +6,7 @@ import os
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+
 st.title("Mutual Fund Selection Dashboard")
 
 # --- Load Data ---
@@ -217,10 +218,47 @@ if st.button("Show Overlap Heatmap (after placing CSVs)"):
         row_sum_abs = corr_mf.abs().sum(axis=1).sort_values(ascending=True)
         st.write("Sum of absolute correlations for each selected fund:")
         st.write(row_sum_abs)
+
+        csv_data = stock_df.reset_index().sort_values(by=[f.name for f in fund_files] ,ascending=False).rename(columns={"index": "Stock"}).to_csv(index=False)
+        st.download_button(
+            label="Download Stock-wise Holdings CSV",
+            data=csv_data,
+            file_name="stock_holdings_overlap.csv",
+            mime="text/csv"
+
+        )
     else:
         st.info("Please upload your holdings CSV files above to run overlap analysis.")
 
+        # Allow user to download the stock-wise holding data
 
+
+
+
+# # --- Thesis Scorecard Analysis ---
+# if 'BETA' in overlap_selection.columns and 'STANDARD DEVIATION' in overlap_selection.columns:
+#     sd_median = overlap_selection['STANDARD DEVIATION'].median()
+
+#     def classify_fund(row):
+#         if row['BETA'] >= 1.0 or row['SORTINO RATIO'] <= 1.0:
+#             return '⚠️ Ignore'
+#         elif row['STANDARD DEVIATION'] <= sd_median:
+#             return '✅ Cushion'
+#         else:
+#             return '🚀 Enhancer'
+
+#     overlap_selection['Thesis Role'] = overlap_selection.apply(classify_fund, axis=1)
+
+#     st.subheader("📊 Thesis Scorecard")
+#     st.dataframe(
+#         overlap_selection[['SCHEMES', 'BETA', 'STANDARD DEVIATION', 'SORTINO RATIO', 'Thesis Role']],
+#         hide_index=True,
+#         use_container_width=True
+#     )
+# else:
+#     st.info("Beta and Standard Deviation columns not found in uploaded Excel. Please include them to use the Thesis Scorecard.")
+
+# print(type(overlap_selection))
 
 # import streamlit as st
 # import pandas as pd

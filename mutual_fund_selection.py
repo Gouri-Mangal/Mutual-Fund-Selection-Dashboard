@@ -114,7 +114,15 @@ top_n = st.sidebar.slider("Number of Top Funds", 5, 50, 10)
 df_filtered = filter_funds(df, include_category, aum_min)
 df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight)
 final_selection = df[df['SCHEMES'].isin(df_scored.head(top_n)['SCHEMES'])].copy()
-final_selection = final_selection.merge(df_scored[['SCHEMES', 'Sharpe_Sortino_Score']], on='SCHEMES', how='left')
+
+
+final_selection = final_selection.merge(
+    df_scored[['SCHEMES', 'Sharpe_Sortino_Score']],
+    on='SCHEMES',
+    how='left'
+).sort_values('Sharpe_Sortino_Score', ascending=False)
+st.subheader("Final Selection")
+st.dataframe(final_selection[['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']], hide_index=True, use_container_width=True)
 
 # --- Column Display Selection ---
 default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']

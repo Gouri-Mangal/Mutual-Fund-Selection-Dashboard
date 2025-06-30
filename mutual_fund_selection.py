@@ -136,7 +136,7 @@ st.dataframe(final_selection[cols_to_display], use_container_width=True)
 
 # --- Admin: Manual Selection & Overlap ---
 if view == "admin":
-    if st.sidebar.checkbox("Enable Manual Scheme Analysis"):
+    if st.sidebar.checkbox("Enable Permanent Scheme Analysis"):
         st.sidebar.markdown("### Permanent Scheme Selection")
         default_admin_schemes = [
             "Old Bridge Focused Equity Fund Reg (G)",

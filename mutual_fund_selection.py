@@ -9,24 +9,62 @@ st.markdown(
     """
     <style>
     .stMultiSelect [data-baseweb="tag"]:nth-child(1) {
-        background-color: #ff6b6b !important;  /* red */
+        background-color: #FFA896 !important;  /* red */
         color: white !important;
     }
     .stMultiSelect [data-baseweb="tag"]:nth-child(2) {
-        background-color: #1dd1a1 !important;  /* green */
+        background-color: #9B1313 !important;  /* green */
         color: white !important;
     }
     .stMultiSelect [data-baseweb="tag"]:nth-child(3) {
-        background-color: #54a0ff !important;  /* blue */
+        background-color: #38000A !important;  /* blue */
         color: white !important;
     }
     .stMultiSelect [data-baseweb="tag"]:nth-child(4) {
-        background-color: #feca57 !important;  /* yellow */
+        background-color: #DEA193 !important;  /* yellow */
         color: black !important;
     }
     .stMultiSelect [data-baseweb="tag"]:nth-child(5) {
-        background-color: #5f27cd !important;  /* purple */
+        background-color: #F88379 !important;  /* purple */
         color: white !important;
+    .stMultiSelect [data-baseweb="tag"]:nth-child(6) {
+        background-color: #E26F66 !important;  /* purple */
+        color: white !important;
+    .stMultiSelect [data-baseweb="tag"]:nth-child(7) {
+        background-color: #BE5103 !important;  /* purple */
+        color: white !important;
+    .stMultiSelect [data-baseweb="tag"]:nth-child(8) {
+        background-color: #9E3A26 !important;  /* purple */
+        color: white !important;
+    .stMultiSelect [data-baseweb="tag"]:nth-child(9) {
+        background-color: #DA2C43 !important;  /* red */
+        color: white !important;
+    }
+    .stMultiSelect [data-baseweb="tag"]:nth-child(10) {
+        background-color: #FA5053 !important;  /* green */
+        color: white !important;
+    }
+    .stMultiSelect [data-baseweb="tag"]:nth-child(11) {
+        background-color: #38000A !important;  /* blue */
+        color: white !important;
+    }
+    .stMultiSelect [data-baseweb="tag"]:nth-child(12) {
+        background-color: #DEA193 !important;  /* yellow */
+        color: black !important;
+    }
+    .stMultiSelect [data-baseweb="tag"]:nth-child(13) {
+        background-color: #F88379 !important;  /* purple */
+        color: white !important;
+    .stMultiSelect [data-baseweb="tag"]:nth-child(14) {
+        background-color: #E26F66 !important;  /* purple */
+        color: white !important;
+    .stMultiSelect [data-baseweb="tag"]:nth-child(15) {
+        background-color: #BE5103 !important;  /* purple */
+        color: white !important;
+    .stMultiSelect [data-baseweb="tag"]:nth-child(16) {
+        background-color: # !important;  /* purple */
+        color: white !important;    
+
     }
     </style>
     """,

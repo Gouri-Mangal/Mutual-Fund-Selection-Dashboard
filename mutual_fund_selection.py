@@ -111,18 +111,7 @@ sortino_weight = st.sidebar.slider("Sortino Weight", 0.0, 1.0, rules['sortino_we
 top_n = st.sidebar.slider("Number of Top Funds", 5, 50, 10)
 
 # --- Fund Selection ---
-df_filtered = filter_funds(df, include_category, aum_min)
-df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight)
-final_selection = df[df['SCHEMES'].isin(df_scored.head(top_n)['SCHEMES'])].copy()
 
-
-final_selection = final_selection.merge(
-    df_scored[['SCHEMES', 'Sharpe_Sortino_Score']],
-    on='SCHEMES',
-    how='left'
-).sort_values('Sharpe_Sortino_Score', ascending=False)
-st.subheader("Final Selection")
-st.dataframe(final_selection[['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']], hide_index=True, use_container_width=True)
 
 # --- Column Display Selection ---
 default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']
@@ -130,6 +119,17 @@ available_cols = df.columns.tolist()
 optional_cols = [col for col in available_cols if col not in default_cols]
 extra_cols_selected = st.multiselect("Select additional columns to display:", optional_cols, default=[])
 cols_to_display = default_cols + extra_cols_selected
+
+df_filtered = filter_funds(df, include_category, aum_min)
+df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight)
+final_selection = df[df['SCHEMES'].isin(df_scored.head(top_n)['SCHEMES'])].copy()
+final_selection = final_selection.merge(
+    df_scored[['SCHEMES', 'Sharpe_Sortino_Score']],
+    on='SCHEMES',
+    how='left'
+).sort_values('Sharpe_Sortino_Score', ascending=False)
+
+st.dataframe(final_selection[['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']], hide_index=True, use_container_width=True)
 
 st.subheader("Final Selection")
 st.dataframe(final_selection[cols_to_display], use_container_width=True)
@@ -146,16 +146,16 @@ if view == "admin":
         admin_selected_schemes = st.sidebar.multiselect("Select up to 5 schemes for analysis:", df['SCHEMES'].unique().tolist(), default=default_admin_schemes, max_selections=10)
 
         if admin_selected_schemes:
-            st.subheader("Admin Schemes Overview")
+            st.subheader("Permanent Schemes Overview")
             admin_df = df[df['SCHEMES'].isin(admin_selected_schemes)].copy()
             if 'Sharpe_Sortino_Score' in df_scored.columns:
                 admin_df = admin_df.merge(df_scored[['SCHEMES', 'Sharpe_Sortino_Score']], on='SCHEMES', how='left')
             st.dataframe(admin_df[cols_to_display], use_container_width=True)
 
     # Overlap Analysis
-    if mappings is not None:
+    elif mappings is not None:
         st.subheader("Overlap Analysis")
-        overlap_selection = admin_selected_schemes if 'admin_selected_schemes' in locals() and admin_selected_schemes else st.multiselect("Select schemes for overlap:", df['SCHEMES'].unique(), default=final_selection['SCHEMES'].tolist())
+        overlap_selection = st.multiselect("Select schemes for overlap:", df['SCHEMES'].unique(), default=final_selection['SCHEMES'].tolist())
         selected_mapping = mappings[mappings['Investwell'].isin(overlap_selection)]
         uploaded_csvs = st.file_uploader("Upload Holdings CSVs", type="csv", accept_multiple_files=True)
 

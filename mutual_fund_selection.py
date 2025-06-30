@@ -230,35 +230,35 @@ st.dataframe(final_selection[cols_to_display], hide_index=True, use_container_wi
 # st.dataframe(final_selection[['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']], hide_index=True, use_container_width=True)
 
 if view == "admin":
-    st.sidebar.markdown("### Admin: Permanent Scheme Selection")
+     if st.sidebar.checkbox("Enable Manual Scheme Analysis"):
+        st.sidebar.markdown("### Admin: Permanent Scheme Selection")
 
     # Predefined default schemes (make sure names match exactly what's in df['SCHEMES'])
-    default_admin_schemes = [
+        default_admin_schemes = [
         "Old Bridge Focused Equity Fund Reg (G)", "Parag Parikh Flexi Cap Fund Reg (G)",
         "ICICI Pru Large & Mid Cap Fund Reg (G)"
     ]
 
-    admin_selected_schemes = st.sidebar.multiselect(
+        admin_selected_schemes = st.sidebar.multiselect(
         "Select up to 5 schemes for analysis:",
         options=list(df['SCHEMES'].unique()),
         default=[s for s in default_admin_schemes if s in df['SCHEMES'].unique()],
         max_selections=10
     )
 
-    if admin_selected_schemes:
-        st.subheader("Permanent Analysis: Selected Schemes Overview")
-        admin_df = df[df['SCHEMES'].isin(admin_selected_schemes)].copy()
+        if admin_selected_schemes:
+         st.subheader("Permanent Analysis: Selected Schemes Overview")
+         admin_df = df[df['SCHEMES'].isin(admin_selected_schemes)].copy()
 
         # Merge score if available
-        if 'Sharpe_Sortino_Score' in df_scored.columns:
-            admin_df = admin_df.merge(df_scored[['SCHEMES', 'Sharpe_Sortino_Score']], on='SCHEMES', how='left')
+         if 'Sharpe_Sortino_Score' in df_scored.columns:
+          admin_df = admin_df.merge(df_scored[['SCHEMES', 'Sharpe_Sortino_Score']], on='SCHEMES', how='left')
 
         # Columns to show
         analysis_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'EXPENSE RATIO', 'SHARPE RATIO',
                          'SORTINO RATIO', 'FUND RATING', 'ALPHA', 'BETA', 'STANDARD DEV',
                          'Sharpe_Sortino_Score']
         analysis_cols = [col for col in analysis_cols if col in admin_df.columns]  # in case of missing
-
         st.dataframe(admin_df[analysis_cols], hide_index=True, use_container_width=True)
 
 # --- Admin Section: Overlap Analysis ---

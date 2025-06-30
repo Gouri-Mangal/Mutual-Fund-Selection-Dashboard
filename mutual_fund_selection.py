@@ -7,6 +7,8 @@ import json
 import gspread
 from google.oauth2.service_account import Credentials
 
+st.title("Mutual Fund Selection Dashboard")
+
 # --- Styling for Sidebar Multiselect Tags ---
 st.markdown("""
 <style>
@@ -17,6 +19,8 @@ st.markdown("""
 .stSidebar .stMultiSelect [data-baseweb="tag"]:nth-child(5) { background-color: #F88379 !important; color: white !important; }
 </style>
 """, unsafe_allow_html=True)
+
+
 
 # --- Google Sheets Auth ---
 scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]

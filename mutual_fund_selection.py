@@ -194,38 +194,6 @@ sharpe_weight = st.sidebar.slider("Sharpe Weight", 0.0, 1.0, rules['sharpe_weigh
 sortino_weight = st.sidebar.slider("Sortino Weight", 0.0, 1.0, rules['sortino_weight'])
 top_n = st.sidebar.slider("Number of Top Funds", min_value=5, max_value=50, value=10)
 
-if view == "admin":
-    st.sidebar.markdown("### Admin: Permanent Scheme Selection")
-
-    # Predefined default schemes (make sure names match exactly what's in df['SCHEMES'])
-    default_admin_schemes = [
-        "Old Bridge Focused Equity Fund Reg (G)", "Parag Parikh Flexi Cap Fund Reg (G)",
-        "ICICI Pru Large & Mid Cap Fund Reg (G)"
-    ]
-
-    admin_selected_schemes = st.sidebar.multiselect(
-        "Select up to 5 schemes for analysis:",
-        options=list(df['SCHEMES'].unique()),
-        default=[s for s in default_admin_schemes if s in df['SCHEMES'].unique()],
-        max_selections=10
-    )
-
-    if admin_selected_schemes:
-        st.subheader("Permanent Analysis: Selected Schemes Overview")
-        admin_df = df[df['SCHEMES'].isin(admin_selected_schemes)].copy()
-
-        # Merge score if available
-        if 'Sharpe_Sortino_Score' in df_scored.columns:
-            admin_df = admin_df.merge(df_scored[['SCHEMES', 'Sharpe_Sortino_Score']], on='SCHEMES', how='left')
-
-        # Columns to show
-        analysis_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'EXPENSE RATIO', 'SHARPE RATIO',
-                         'SORTINO RATIO', 'FUND RATING', 'ALPHA', 'BETA', 'STANDARD DEV',
-                         'Sharpe_Sortino_Score']
-        analysis_cols = [col for col in analysis_cols if col in admin_df.columns]  # in case of missing
-
-        st.dataframe(admin_df[analysis_cols], hide_index=True, use_container_width=True)
-
 # --- Filtering, Scoring, and Final Selection ---
 df_filtered = filter_funds(df, include_category, aum_min)
 df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight)
@@ -260,6 +228,38 @@ st.dataframe(final_selection[cols_to_display], hide_index=True, use_container_wi
 
 # st.subheader("Final Selection")
 # st.dataframe(final_selection[['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']], hide_index=True, use_container_width=True)
+
+if view == "admin":
+    st.sidebar.markdown("### Admin: Permanent Scheme Selection")
+
+    # Predefined default schemes (make sure names match exactly what's in df['SCHEMES'])
+    default_admin_schemes = [
+        "Old Bridge Focused Equity Fund Reg (G)", "Parag Parikh Flexi Cap Fund Reg (G)",
+        "ICICI Pru Large & Mid Cap Fund Reg (G)"
+    ]
+
+    admin_selected_schemes = st.sidebar.multiselect(
+        "Select up to 5 schemes for analysis:",
+        options=list(df['SCHEMES'].unique()),
+        default=[s for s in default_admin_schemes if s in df['SCHEMES'].unique()],
+        max_selections=10
+    )
+
+    if admin_selected_schemes:
+        st.subheader("Permanent Analysis: Selected Schemes Overview")
+        admin_df = df[df['SCHEMES'].isin(admin_selected_schemes)].copy()
+
+        # Merge score if available
+        if 'Sharpe_Sortino_Score' in df_scored.columns:
+            admin_df = admin_df.merge(df_scored[['SCHEMES', 'Sharpe_Sortino_Score']], on='SCHEMES', how='left')
+
+        # Columns to show
+        analysis_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'EXPENSE RATIO', 'SHARPE RATIO',
+                         'SORTINO RATIO', 'FUND RATING', 'ALPHA', 'BETA', 'STANDARD DEV',
+                         'Sharpe_Sortino_Score']
+        analysis_cols = [col for col in analysis_cols if col in admin_df.columns]  # in case of missing
+
+        st.dataframe(admin_df[analysis_cols], hide_index=True, use_container_width=True)
 
 # --- Admin Section: Overlap Analysis ---
 if view == "admin" and mappings is not None:

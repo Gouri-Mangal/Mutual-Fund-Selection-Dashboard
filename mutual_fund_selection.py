@@ -5,16 +5,28 @@ import matplotlib.pyplot as plt
 import json
 import gspread
 from google.oauth2.service_account import Credentials
-
 st.markdown(
     """
     <style>
-    /* Apply a blue-green gradient to selected options in the multiselect dropdown */
-    .stMultiSelect [data-baseweb="tag"] {
-        background: linear-gradient(to right, #00c6ff, #007f5f) !important;
+    .stMultiSelect [data-baseweb="tag"]:nth-child(1) {
+        background-color: #ff6b6b !important;  /* red */
         color: white !important;
-        border-radius: 8px;
-        padding: 4px 8px;
+    }
+    .stMultiSelect [data-baseweb="tag"]:nth-child(2) {
+        background-color: #1dd1a1 !important;  /* green */
+        color: white !important;
+    }
+    .stMultiSelect [data-baseweb="tag"]:nth-child(3) {
+        background-color: #54a0ff !important;  /* blue */
+        color: white !important;
+    }
+    .stMultiSelect [data-baseweb="tag"]:nth-child(4) {
+        background-color: #feca57 !important;  /* yellow */
+        color: black !important;
+    }
+    .stMultiSelect [data-baseweb="tag"]:nth-child(5) {
+        background-color: #5f27cd !important;  /* purple */
+        color: white !important;
     }
     </style>
     """,

@@ -114,25 +114,41 @@ top_n = st.sidebar.slider("Number of Top Funds", 5, 50, 10)
 
 
 # --- Column Display Selection ---
+# --- Filter, Score, and Select Top Funds ---
+df_filtered = filter_funds(df, include_category, aum_min)
+df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight)
+
+# --- Manual Scheme Selection ---
+default_selection = list(df_scored.head(top_n)['SCHEMES'])
+manual_selection = st.multiselect(
+    "Personal Selection: Add or Remove Schemes",
+    options=list(df['SCHEMES']),
+    default=default_selection,
+)
+
+# --- Final Selection with Merged Score ---
+final_selection = df[df['SCHEMES'].isin(manual_selection)].copy()
+if 'Sharpe_Sortino_Score' in df_scored.columns:
+    final_selection = final_selection.merge(
+        df_scored[['SCHEMES', 'Sharpe_Sortino_Score']],
+        on='SCHEMES',
+        how='left'
+    )
+
+# --- Column Customization ---
 default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']
 available_cols = df.columns.tolist()
 optional_cols = [col for col in available_cols if col not in default_cols]
 extra_cols_selected = st.multiselect("Select additional columns to display:", optional_cols, default=[])
 cols_to_display = default_cols + extra_cols_selected
 
-df_filtered = filter_funds(df, include_category, aum_min)
-df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight)
-final_selection = df[df['SCHEMES'].isin(df_scored.head(top_n)['SCHEMES'])].copy()
-final_selection = final_selection.merge(
-    df_scored[['SCHEMES', 'Sharpe_Sortino_Score']],
-    on='SCHEMES',
-    how='left'
-).sort_values('Sharpe_Sortino_Score', ascending=False)
-
-# st.dataframe(final_selection[['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']], hide_index=True, use_container_width=True)
+# --- Display Final Table ---
+if 'Sharpe_Sortino_Score' in final_selection.columns:
+    final_selection = final_selection.sort_values('Sharpe_Sortino_Score', ascending=False)
 
 st.subheader("Final Selection")
 st.dataframe(final_selection[cols_to_display], use_container_width=True, hide_index=True)
+
 
 # --- Admin: Manual Selection & Overlap ---
 if view == "admin":

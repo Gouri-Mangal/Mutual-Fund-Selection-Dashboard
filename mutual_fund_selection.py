@@ -21,12 +21,10 @@ gc = gspread.authorize(credentials)
 
 
 # --- View Detection ---
-query_params = st.query_params
-view = query_params.get("view")
+# --- Role Toggle ---
+st.markdown("Select Role")
+role = st.radio("Choose a view:", ["User", "Admin"], horizontal=True)
 
-if view not in ["user", "admin"]:
-    st.query_params.update({"view": "user"})
-    st.stop()
 
 # --- Admin Auth ---
 def admin_auth():
@@ -51,9 +49,10 @@ def admin_auth():
                 st.stop()
     st.stop()
 
-if view == "admin":
+if role == "Admin":
     if not admin_auth():
         st.stop()
+
 
 # --- Google Sheets Settings ---
 GOOGLE_SHEET_ID = "1hicM1Hs3_7JGcJPTZ9o6iWeoKLOMJXBPJn5gyvjHGw4"
@@ -127,7 +126,7 @@ category_rules = {
     }
 }
 
-if view == "admin":
+if role == "admin":
     uploaded_mappings = st.file_uploader("Upload mappings.csv (scheme-to-CSV mapping)", type=["csv"])
     if uploaded_mappings is not None:
         mappings = pd.read_csv(uploaded_mappings)
@@ -209,7 +208,7 @@ final_selection = final_selection.merge(
 st.subheader("Final Selection")
 st.dataframe(final_selection[['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']], hide_index=True, use_container_width=True)
 
-if view == "admin":
+if role == "admin":
     # --- Instructions for CSVs ---
     fundata_folder = f"fundata_{category.lower().replace(' ', '_')}"
     st.markdown("Download the holdings CSVs for these schemes and place them in the folder: fundata (create it if it doesn't exist).")

@@ -129,7 +129,7 @@ final_selection = final_selection.merge(
     how='left'
 ).sort_values('Sharpe_Sortino_Score', ascending=False)
 
-st.dataframe(final_selection[['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']], hide_index=True, use_container_width=True)
+# st.dataframe(final_selection[['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']], hide_index=True, use_container_width=True)
 
 st.subheader("Final Selection")
 st.dataframe(final_selection[cols_to_display], use_container_width=True)

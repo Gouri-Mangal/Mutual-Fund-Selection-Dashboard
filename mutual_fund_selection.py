@@ -62,7 +62,7 @@ SHEET_NAME = "Top Schemes"
 @st.cache_data(ttl=600)
 def load_google_sheet(sheet_id, sheet_name):
     try:
-        gc = gspread.authorize(creds)
+        gc = gspread.authorize(credentials)
         sh = gc.open_by_key(sheet_id)
         worksheet = sh.worksheet(sheet_name)
         data = worksheet.get_all_records()

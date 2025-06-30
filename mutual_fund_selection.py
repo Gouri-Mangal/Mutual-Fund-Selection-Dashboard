@@ -45,12 +45,14 @@ def load_google_sheet(sheet_id, sheet_name):
 # Load main and mapping sheets
 GOOGLE_SHEET_ID = "1hicM1Hs3_7JGcJPTZ9o6iWeoKLOMJXBPJn5gyvjHGw4"
 df = load_google_sheet(GOOGLE_SHEET_ID, "Top Schemes")
+st.success("Top Schemes uploaded and loaded successfully!")
 
 if df is None or df.empty:
     uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
     if uploaded_file:
         df = pd.read_excel(uploaded_file)
         df.columns = df.columns.str.strip()
+        st.success("Top Schemes uploaded and loaded successfully!")
     else:
         st.warning("Please upload an Excel file to proceed.")
         st.stop()
@@ -58,10 +60,15 @@ if df is None or df.empty:
 if view == "admin":
     MAPPINGS_SHEET_ID = "1bm-ytBH3qE3JsqOR2x-jMi7-k1DOPKMSPUBRkVhWgkU"
     mappings = load_google_sheet(MAPPINGS_SHEET_ID, "mappings")
+    st.success("Mappings uploaded and loaded successfully!")
     if mappings is None or mappings.empty:
         uploaded_mappings = st.file_uploader("Upload mappings.csv", type=["csv"])
         if uploaded_mappings:
             mappings = pd.read_csv(uploaded_mappings)
+            st.success("Mappings uploaded and loaded successfully!")
+        else:
+         st.warning("Please upload an Excel file to proceed.")
+         st.stop()
 
 # --- Rules and Helpers ---
 category_rules = {

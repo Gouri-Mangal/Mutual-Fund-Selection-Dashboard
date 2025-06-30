@@ -153,10 +153,17 @@ if view == "admin":
                 for f in fund_files:
                     for _, row in fund_dfs[f.name].iterrows():
                         stock_df.at[row['Invested In'], f.name] = row['% of Total Holding']
+                
                 corr_mf = stock_df.corr()
                 fig, ax = plt.subplots(figsize=(8, 6))
-                sns.heatmap(corr_mf, annot=True, cmap='YlGnBu', fmt='.2f', ax=ax)
+                sns.heatmap(corr_mf, annot=True, cmap='YlGnBu', fmt='.2f', ax=ax, annot_kws={"size": 12}, linecolor="black", linewidths=0.5)
                 st.pyplot(fig)
-                st.download_button("Download Overlap Data", data=stock_df.reset_index().to_csv(index=False), file_name="stock_holdings_overlap.csv")
+
+                row_sum_abs = corr_mf.abs().sum(axis=1).sort_values(ascending=True)
+                st.write("Sum of absolute correlations for each selected fund:")
+                st.write(row_sum_abs)
+
+                csv_data = stock_df.reset_index().rename(columns={"index": "Stock"}).to_csv(index=False)
+                st.download_button("Download Stock-wise Holdings CSV", data=csv_data, file_name="stock_holdings_overlap.csv", mime="text/csv")
             else:
-                st.info("Please upload valid CSVs to run overlap analysis.")
+             st.info("Please upload your holdings CSV files above to run overlap analysis.")

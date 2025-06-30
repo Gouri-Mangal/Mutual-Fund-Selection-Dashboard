@@ -154,7 +154,7 @@ if view == "admin":
 
     # Overlap Analysis
     if mappings is not None:
-    st.subheader("Overlap Analysis")
+        st.subheader("Overlap Analysis")
 
     # Admin preference or fallback to multiselect
     if view == "admin" and st.sidebar.checkbox("Use Permanent Selection for Overlap", value=False):

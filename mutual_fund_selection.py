@@ -56,12 +56,59 @@ else:
 
 # --- Category Rules ---
 category_rules = {
-    "Not Selected": {"include_category":[], "aum_min": 0, "sharpe_weight": 0, "sortino_weight": 0},
-    "Conservative": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.0, "sortino_weight": 1.0},
-    "Moderate Conservative": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.25, "sortino_weight": 0.75},
-    "Moderate": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: focused"], "aum_min": 10000, "sharpe_weight": 0.5, "sortino_weight": 0.5},
-    "Moderate Aggressive": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused"], "aum_min": 10000, "sharpe_weight": 0.75, "sortino_weight": 0.25},
-    "Aggressive": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused", "equity: sectoral", "equity: small cap", "equity: thematic"], "aum_min": 10000, "sharpe_weight": 1.0, "sortino_weight": 0.0}
+    "Not Selected": {
+
+        "include_category":[],
+        "aum_min": 0, 
+        "sharpe_weight": 0,
+        "sortino_weight": 0
+
+        },
+
+    "Conservative": {
+
+        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], 
+        "aum_min": 10000, 
+        "sharpe_weight": 0.0, 
+        "sortino_weight": 1.0
+        
+        },
+
+    "Moderate Conservative": {
+
+        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], 
+        "aum_min": 10000,
+        "sharpe_weight": 0.25,
+        "sortino_weight": 0.75
+        
+        },
+
+    "Moderate": {
+
+        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: focused"], 
+        "aum_min": 10000, 
+        "sharpe_weight": 0.5, 
+        "sortino_weight": 0.5
+        
+        },
+
+    "Moderate Aggressive": {
+        
+        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused"],
+        "aum_min": 10000,
+        "sharpe_weight": 0.75,
+        "sortino_weight": 0.25
+        
+        },
+
+    "Aggressive": {
+        
+        "include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused", "equity: sectoral", "equity: small cap", "equity: thematic"], 
+        "aum_min": 10000,
+        "sharpe_weight": 1.0,
+        "sortino_weight": 0.0
+        
+        }
 }
 
 # --- Load Mappings Sheet ---
@@ -119,9 +166,31 @@ manual_selection = st.multiselect("Personal Selection: Add or Remove Schemes", o
 
 final_selection = df[df['SCHEMES'].isin(manual_selection)].reset_index(drop=True)
 final_selection = final_selection.merge(df_scored[['SCHEMES', 'Sharpe_Sortino_Score']], on='SCHEMES', how='left').sort_values('Sharpe_Sortino_Score', ascending=False)
+# --- Final Selection Display with Custom Columns ---
+default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']
+available_cols = ['SCHEMES', 'EXPENSE RATIO', 'CATEGORY', 'AUM(CR)', '1 DAY', '7 DAY', '15 DAY', '30 DAY', '3 MONTH',
+                  '6 MONTH', '1 YEAR', '2 YEAR', '3 YEAR', '5 YEAR', '7 YEAR', '10 YEAR', '15 YEAR', '20 YEAR',
+                  '25 YEAR', 'SINCE INCEPTION RETURN', 'FUND RATING', 'ALPHA', 'BETA', 'MEAN', 'STANDARD DEV',
+                  'SHARPE RATIO', 'SORTINO RATIO', 'AVERAGE MATURITY', 'MODIFIED DURATION', 'YIELD TO MATURITY',
+                  'LAUNCH DATE', 'SCHEME BENCHMARK', 'LARGECAP RATIO', 'MIDCAP RATIO', 'SMALLCAP RATIO',
+                  'CURRENT NAV', 'IS RECOMMENDED']
+
+# Exclude default columns to create optional ones
+optional_cols = [col for col in available_cols if col not in default_cols]
+
+extra_cols_selected = st.multiselect(
+    "Select additional columns to display:",
+    options=optional_cols,
+    default=[]
+)
+
+cols_to_display = default_cols + extra_cols_selected
 
 st.subheader("Final Selection")
-st.dataframe(final_selection[['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']], hide_index=True, use_container_width=True)
+st.dataframe(final_selection[cols_to_display], hide_index=True, use_container_width=True)
+
+# st.subheader("Final Selection")
+# st.dataframe(final_selection[['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']], hide_index=True, use_container_width=True)
 
 # --- Admin Section: Overlap Analysis ---
 if view == "admin" and mappings is not None:

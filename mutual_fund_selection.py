@@ -6,6 +6,21 @@ import json
 import gspread
 from google.oauth2.service_account import Credentials
 
+st.markdown(
+    """
+    <style>
+    /* Apply a blue-green gradient to selected options in the multiselect dropdown */
+    .stMultiSelect [data-baseweb="tag"] {
+        background: linear-gradient(to right, #00c6ff, #007f5f) !important;
+        color: white !important;
+        border-radius: 8px;
+        padding: 4px 8px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Define the scopes
 scopes = [
     "https://www.googleapis.com/auth/spreadsheets",

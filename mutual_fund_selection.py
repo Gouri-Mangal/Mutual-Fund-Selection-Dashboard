@@ -166,6 +166,7 @@ manual_selection = st.multiselect("Personal Selection: Add or Remove Schemes", o
 
 final_selection = df[df['SCHEMES'].isin(manual_selection)].reset_index(drop=True)
 final_selection = final_selection.merge(df_scored[['SCHEMES', 'Sharpe_Sortino_Score']], on='SCHEMES', how='left').sort_values('Sharpe_Sortino_Score', ascending=False)
+final_selection.columns = final_selection.columns.str.strip()
 # --- Final Selection Display with Custom Columns ---
 default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']
 available_cols = ['SCHEMES', 'EXPENSE RATIO', 'CATEGORY', 'AUM(CR)', '1 DAY', '7 DAY', '15 DAY', '30 DAY', '3 MONTH',
@@ -179,7 +180,7 @@ available_cols = ['SCHEMES', 'EXPENSE RATIO', 'CATEGORY', 'AUM(CR)', '1 DAY', '7
 optional_cols = [col for col in available_cols if col not in default_cols]
 
 extra_cols_selected = st.multiselect(
-    "Select additional columns to display:",
+
     options=optional_cols,
     default=[]
 )

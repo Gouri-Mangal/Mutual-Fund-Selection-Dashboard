@@ -8,34 +8,34 @@ from google.oauth2.service_account import Credentials
 
 st.markdown("""
 <style>
-.stMultiSelect [data-baseweb="tag"]:nth-child(1) {
+.stSidebar .stMultiSelect [data-baseweb="tag"]:nth-child(1) {
     background-color: #FFA896 !important; color: white !important;
 }
-.stMultiSelect [data-baseweb="tag"]:nth-child(2) {
+.stSidebar .stMultiSelect [data-baseweb="tag"]:nth-child(2) {
     background-color: #9B1313 !important; color: white !important;
 }
-.stMultiSelect [data-baseweb="tag"]:nth-child(3) {
+.stSidebar .stMultiSelect [data-baseweb="tag"]:nth-child(3) {
     background-color: #38000A !important; color: white !important;
 }
-.stMultiSelect [data-baseweb="tag"]:nth-child(4) {
+.stSidebar .stMultiSelect [data-baseweb="tag"]:nth-child(4) {
     background-color: #DEA193 !important; color: black !important;
 }
-.stMultiSelect [data-baseweb="tag"]:nth-child(5) {
+.stSidebar .stMultiSelect [data-baseweb="tag"]:nth-child(5) {
     background-color: #F88379 !important; color: white !important;
 }
-.stMultiSelect [data-baseweb="tag"]:nth-child(6) {
+.stSidebar .stMultiSelect [data-baseweb="tag"]:nth-child(6) {
     background-color: #E26F66 !important; color: white !important;
 }
-.stMultiSelect [data-baseweb="tag"]:nth-child(7) {
+.stSidebar .stMultiSelect [data-baseweb="tag"]:nth-child(7) {
     background-color: #BE5103 !important; color: white !important;
 }
-.stMultiSelect [data-baseweb="tag"]:nth-child(8) {
+.stSidebar .stMultiSelect [data-baseweb="tag"]:nth-child(8) {
     background-color: #9E3A26 !important; color: white !important;
 }
-.stMultiSelect [data-baseweb="tag"]:nth-child(9) {
+.stSidebar .stMultiSelect [data-baseweb="tag"]:nth-child(9) {
     background-color: #DA2C43 !important; color: white !important;
 }
-.stMultiSelect [data-baseweb="tag"]:nth-child(10) {
+.stSidebar .stMultiSelect [data-baseweb="tag"]:nth-child(10) {
     background-color: #FA5053 !important; color: white !important;
 }
 </style>

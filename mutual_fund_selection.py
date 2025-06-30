@@ -180,7 +180,7 @@ available_cols = ['SCHEMES', 'EXPENSE RATIO', 'CATEGORY', 'AUM(CR)', '1 DAY', '7
 optional_cols = [col for col in available_cols if col not in default_cols]
 
 extra_cols_selected = st.multiselect(
-
+ "Select additional columns to display:",
     options=optional_cols,
     default=[]
 )

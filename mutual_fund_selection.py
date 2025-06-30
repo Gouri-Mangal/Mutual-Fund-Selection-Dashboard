@@ -101,7 +101,16 @@ category_rules = {
     }
 }
 
-# if role == "admin":
+if view == "admin":
+    MAPPINGS_SHEET_ID = "1bm-ytBH3qE3JsqOR2x-jMi7-k1DOPKMSPUBRkVhWgkU"  # Replace with the actual Sheet ID
+    MAPPINGS_SHEET_NAME = "mappings"  # Replace if the tab name is different
+    mappings = load_google_sheet(MAPPINGS_SHEET_ID, MAPPINGS_SHEET_NAME)
+
+    if mappings is not None and not mappings.empty:
+        st.success("Loaded Mappings from Google Sheet!")
+    else:
+        st.warning("Could not load mappings from Google Sheet.")
+
 #     uploaded_mappings = st.file_uploader("Upload mappings.csv (scheme-to-CSV mapping)", type=["csv"])
 #     if uploaded_mappings is not None:
 #         mappings = pd.read_csv(uploaded_mappings)

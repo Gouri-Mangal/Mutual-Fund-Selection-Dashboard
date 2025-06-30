@@ -4,3 +4,5 @@ numpy==1.23.5
 seaborn==0.11.2
 matplotlib==3.5.2
 openpyxl==3.0.10
+gspread
+oauth2client

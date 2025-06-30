@@ -22,37 +22,12 @@ gc = gspread.authorize(credentials)
 
 # --- View Detection ---
 # --- Role Toggle ---
-st.markdown("Select Role")
-role = st.radio("Choose a view:", ["User", "Admin"], horizontal=True)
+query_params = st.query_params
+view = query_params.get("view")
 
-
-# --- Admin Auth ---
-def admin_auth():
-    if "admin_attempts" not in st.session_state:
-        st.session_state.admin_attempts = 0
-    if "admin_authenticated" not in st.session_state:
-        st.session_state.admin_authenticated = False
-
-    if st.session_state.admin_authenticated:
-        return True
-
-    pwd = st.text_input("Enter admin password", type="password")
-    if st.button("Login"):
-        if pwd == "password":  # <-- Change this to your real password
-            st.session_state.admin_authenticated = True
-            st.rerun()  # <--- Add this line
-        else:
-            st.session_state.admin_attempts += 1
-            st.error(f"Incorrect password. {3 - st.session_state.admin_attempts} attempts left.")
-            if st.session_state.admin_attempts >= 3:
-                st.error("Too many incorrect attempts. Access denied.")
-                st.stop()
+if view not in ["user", "admin"]:
+    st.query_params.update({"view": "user"})
     st.stop()
-
-if role == "Admin":
-    if not admin_auth():
-        st.stop()
-
 
 # --- Google Sheets Settings ---
 GOOGLE_SHEET_ID = "1hicM1Hs3_7JGcJPTZ9o6iWeoKLOMJXBPJn5gyvjHGw4"
@@ -126,14 +101,14 @@ category_rules = {
     }
 }
 
-if role == "admin":
-    uploaded_mappings = st.file_uploader("Upload mappings.csv (scheme-to-CSV mapping)", type=["csv"])
-    if uploaded_mappings is not None:
-        mappings = pd.read_csv(uploaded_mappings)
-        st.success("Mappings file uploaded successfully!")
-    else:
-        st.warning("Please upload mappings.csv to proceed.")
-        st.stop()
+# if role == "admin":
+#     uploaded_mappings = st.file_uploader("Upload mappings.csv (scheme-to-CSV mapping)", type=["csv"])
+#     if uploaded_mappings is not None:
+#         mappings = pd.read_csv(uploaded_mappings)
+#         st.success("Mappings file uploaded successfully!")
+#     else:
+#         st.warning("Please upload mappings.csv to proceed.")
+#         st.stop()
 
 
 # --- Helper Functions ---
@@ -208,7 +183,7 @@ final_selection = final_selection.merge(
 st.subheader("Final Selection")
 st.dataframe(final_selection[['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']], hide_index=True, use_container_width=True)
 
-if role == "admin":
+if view == "admin":
     # --- Instructions for CSVs ---
     fundata_folder = f"fundata_{category.lower().replace(' ', '_')}"
     st.markdown("Download the holdings CSVs for these schemes and place them in the folder: fundata (create it if it doesn't exist).")
@@ -240,8 +215,6 @@ if role == "admin":
     # Filter only the uploaded files that match selected_mapping['CSV']
     required_csv_names = selected_mapping['CSV'].dropna().unique()
     fund_files = [f for f in uploaded_csvs if f.name.replace('.csv', '') in required_csv_names]
-
-
 
 
     # --- Overlap Analysis Button ---

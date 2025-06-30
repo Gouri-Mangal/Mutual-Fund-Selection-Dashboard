@@ -132,7 +132,7 @@ final_selection = final_selection.merge(
 # st.dataframe(final_selection[['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']], hide_index=True, use_container_width=True)
 
 st.subheader("Final Selection")
-st.dataframe(final_selection[cols_to_display], use_container_width=True)
+st.dataframe(final_selection[cols_to_display], use_container_width=True, hide_index=True)
 
 # --- Admin: Manual Selection & Overlap ---
 if view == "admin":
@@ -153,32 +153,81 @@ if view == "admin":
             st.dataframe(admin_df[cols_to_display], use_container_width=True)
 
     # Overlap Analysis
-    elif mappings is not None:
-        st.subheader("Overlap Analysis")
-        overlap_selection = st.multiselect("Select schemes for overlap:", df['SCHEMES'].unique(), default=final_selection['SCHEMES'].tolist())
-        selected_mapping = mappings[mappings['Investwell'].isin(overlap_selection)]
-        uploaded_csvs = st.file_uploader("Upload Holdings CSVs", type="csv", accept_multiple_files=True)
+    if mappings is not None:
+    st.subheader("Overlap Analysis")
 
-        if st.button("Show Overlap Heatmap"):
-            fund_files = [f for f in uploaded_csvs if f.name.replace('.csv', '') in selected_mapping['CSV'].values]
-            if fund_files:
-                fund_dfs = {f.name: pd.read_csv(f) for f in fund_files}
-                unique_stocks = set().union(*(df_f['Invested In'] for df_f in fund_dfs.values()))
-                stock_df = pd.DataFrame(0, index=sorted(unique_stocks), columns=[f.name for f in fund_files])
-                for f in fund_files:
-                    for _, row in fund_dfs[f.name].iterrows():
-                        stock_df.at[row['Invested In'], f.name] = row['% of Total Holding']
+    # Admin preference or fallback to multiselect
+    if view == "admin" and st.sidebar.checkbox("Use Permanent Selection for Overlap", value=False):
+        overlap_selection = admin_selected_schemes
+        st.info("Using permanent sidebar scheme selection for overlap analysis.")
+    else:
+        overlap_selection = st.multiselect(
+            "Select schemes for overlap:",
+            options=list(df['SCHEMES'].unique()),
+            default=final_selection['SCHEMES'].tolist()
+        )
+
+    selected_mapping = mappings[mappings['Investwell'].isin(overlap_selection)]
+    uploaded_csvs = st.file_uploader("Upload Holdings CSVs", type="csv", accept_multiple_files=True)
+
+    required_csv_names = selected_mapping['CSV'].dropna().unique()
+    fund_files = [f for f in uploaded_csvs if f.name.replace('.csv', '') in required_csv_names]
+
+    if st.button("Show Overlap Heatmap"):
+        if fund_files:
+            fund_dfs = {}
+            unique_stocks = set()
+            for f in fund_files:
+                df_f = pd.read_csv(f)
+                fund_dfs[f.name] = df_f
+                unique_stocks.update(df_f['Invested In'])
+
+            stock_df = pd.DataFrame(0, index=sorted(unique_stocks), columns=[f.name for f in fund_files])
+            for f in fund_files:
+                df_f = fund_dfs[f.name]
+                for _, row in df_f.iterrows():
+                    stock_df.at[row['Invested In'], f.name] = row['% of Total Holding']
+
+            corr_mf = stock_df.corr()
+            st.write("Correlation Heatmap")
+            fig, ax = plt.subplots(figsize=(8, 6))
+            sns.heatmap(corr_mf, annot=True, cmap='YlGnBu', fmt='.2f', ax=ax, annot_kws={"size": 12}, linecolor="black", linewidths=0.5)
+            st.pyplot(fig)
+
+            st.write("Sum of absolute correlations for each selected fund:")
+            st.write(corr_mf.abs().sum(axis=1).sort_values(ascending=True))
+
+            csv_data = stock_df.reset_index().rename(columns={"index": "Stock"}).to_csv(index=False)
+            st.download_button("Download Stock-wise Holdings CSV", data=csv_data, file_name="stock_holdings_overlap.csv", mime="text/csv")
+        else:
+            st.info("Please upload your holdings CSV files above to run overlap analysis.")
+
+    # if mappings is not None:
+    #     st.subheader("Overlap Analysis")
+    #     overlap_selection = admin_selected_schemes if st.multiselect("Select schemes for overlap:", df['SCHEMES'].unique(), default=final_selection['SCHEMES'].tolist())
+    #     selected_mapping = mappings[mappings['Investwell'].isin(overlap_selection)]
+    #     uploaded_csvs = st.file_uploader("Upload Holdings CSVs", type="csv", accept_multiple_files=True)
+
+    #     if st.button("Show Overlap Heatmap"):
+    #         fund_files = [f for f in uploaded_csvs if f.name.replace('.csv', '') in selected_mapping['CSV'].values]
+    #         if fund_files:
+    #             fund_dfs = {f.name: pd.read_csv(f) for f in fund_files}
+    #             unique_stocks = set().union(*(df_f['Invested In'] for df_f in fund_dfs.values()))
+    #             stock_df = pd.DataFrame(0, index=sorted(unique_stocks), columns=[f.name for f in fund_files])
+    #             for f in fund_files:
+    #                 for _, row in fund_dfs[f.name].iterrows():
+    #                     stock_df.at[row['Invested In'], f.name] = row['% of Total Holding']
                 
-                corr_mf = stock_df.corr()
-                fig, ax = plt.subplots(figsize=(8, 6))
-                sns.heatmap(corr_mf, annot=True, cmap='YlGnBu', fmt='.2f', ax=ax, annot_kws={"size": 12}, linecolor="black", linewidths=0.5)
-                st.pyplot(fig)
+    #             corr_mf = stock_df.corr()
+    #             fig, ax = plt.subplots(figsize=(8, 6))
+    #             sns.heatmap(corr_mf, annot=True, cmap='YlGnBu', fmt='.2f', ax=ax, annot_kws={"size": 12}, linecolor="black", linewidths=0.5)
+    #             st.pyplot(fig)
 
-                row_sum_abs = corr_mf.abs().sum(axis=1).sort_values(ascending=True)
-                st.write("Sum of absolute correlations for each selected fund:")
-                st.write(row_sum_abs)
+    #             row_sum_abs = corr_mf.abs().sum(axis=1).sort_values(ascending=True)
+    #             st.write("Sum of absolute correlations for each selected fund:")
+    #             st.write(row_sum_abs)
 
-                csv_data = stock_df.reset_index().rename(columns={"index": "Stock"}).to_csv(index=False)
-                st.download_button("Download Stock-wise Holdings CSV", data=csv_data, file_name="stock_holdings_overlap.csv", mime="text/csv")
-            else:
-             st.info("Please upload your holdings CSV files above to run overlap analysis.")
+    #             csv_data = stock_df.reset_index().rename(columns={"index": "Stock"}).to_csv(index=False)
+    #             st.download_button("Download Stock-wise Holdings CSV", data=csv_data, file_name="stock_holdings_overlap.csv", mime="text/csv")
+    #         else:
+    #          st.info("Please upload your holdings CSV files above to run overlap analysis.")

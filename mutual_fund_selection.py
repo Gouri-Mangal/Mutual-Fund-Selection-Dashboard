@@ -101,7 +101,7 @@ def score_funds(df, sharpe_weight, sortino_weight, stdev_weight):
         sortino_weight * df['SORTINO RATIO']
     )
 
-    df['Weighted STDEV'] = (stdev_weight * df['STANDARD DEV'])
+    df['Weighted STDEV'] = (stdev_weight*df['STANDARD DEV'])
     return df
 
 
@@ -151,7 +151,7 @@ if 'Sharpe_Sortino_Score' in df_scored.columns:
     )
 
 # --- Column Customization ---
-default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score', 'STANDARD DEV']
+default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score', 'Weighted STDEV']
 available_cols = df.columns.tolist()
 optional_cols = [col for col in available_cols if col not in default_cols]
 extra_cols_selected = st.multiselect("Select additional columns to display:", optional_cols, default=[])

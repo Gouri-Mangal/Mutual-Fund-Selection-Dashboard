@@ -76,12 +76,12 @@ if view == "admin":
 
 # --- Rules and Helpers ---
 category_rules = {
-    "Not Selected": {"include_category": [], "aum_min": 0, "sharpe_weight": 0, "sortino_weight": 0, "stdev_weight": 0},
-    "Conservative": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.0, "sortino_weight": 1.0,  "stdev_weight": 0.15},
-    "Moderate Conservative": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.25, "sortino_weight": 0.75, "stdev_weight": 0.15},
-    "Moderate": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: focused"], "aum_min": 10000, "sharpe_weight": 0.5, "sortino_weight": 0.5, "stdev_weight": 0.15},
-    "Moderate Aggressive": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused"], "aum_min": 10000, "sharpe_weight": 0.75, "sortino_weight": 0.25, "stdev_weight": 0.15},
-    "Aggressive": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused", "equity: sectoral", "equity: small cap", "equity: thematic"], "aum_min": 10000, "sharpe_weight": 1.0, "sortino_weight": 0.0, "stdev_weight": 0.15},
+    "Not Selected": {"include_category": [], "aum_min": 0, "sharpe_weight": 0, "sortino_weight": 0, "stdev_min": 0},
+    "Conservative": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.0, "sortino_weight": 1.0,  "stdev_min": 15},
+    "Moderate Conservative": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.25, "sortino_weight": 0.75, "stdev_min": 15},
+    "Moderate": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: focused"], "aum_min": 10000, "sharpe_weight": 0.5, "sortino_weight": 0.5, "stdev_min": 15},
+    "Moderate Aggressive": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused"], "aum_min": 10000, "sharpe_weight": 0.75, "sortino_weight": 0.25, "stdev_min": 15},
+    "Aggressive": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused", "equity: sectoral", "equity: small cap", "equity: thematic"], "aum_min": 10000, "sharpe_weight": 1.0, "sortino_weight": 0.0, "stdev_min": 15},
 }
 
 # Helper Functions
@@ -90,7 +90,8 @@ def filter_funds(df, include_category, aum_min):
     df['AUM(CR)'] = pd.to_numeric(df['AUM(CR)'], errors='coerce')
     return df[df['CATEGORY'].str.strip().str.lower().isin(include_category) & (df['AUM(CR)'] >= aum_min)]
 
-def score_funds(df, sharpe_weight, sortino_weight, stdev_weight):
+
+def score_funds(df, sharpe_weight, sortino_weight, stdev_min):
     df['SHARPE RATIO'] = pd.to_numeric(df['SHARPE RATIO'], errors='coerce')
     df['SORTINO RATIO'] = pd.to_numeric(df['SORTINO RATIO'], errors='coerce')
     df['STANDARD DEV']= pd.to_numeric(df['STANDARD DEV'], errors='coerce')
@@ -100,8 +101,8 @@ def score_funds(df, sharpe_weight, sortino_weight, stdev_weight):
         sharpe_weight * df['SHARPE RATIO'] +
         sortino_weight * df['SORTINO RATIO']
     )
-
-    df['Weighted STDEV'] = (stdev_weight*df['STANDARD DEV'])
+    df['STANDARD DEV'] = df['STANDARD DEV'] <= stdev_min
+    
     return df
 
 
@@ -122,7 +123,7 @@ include_category = [cat.lower() for cat in include_category_display]
 aum_min = st.sidebar.number_input("AUM Minimum (Cr)", value=rules['aum_min'])
 sharpe_weight = st.sidebar.slider("Sharpe Weight", 0.0, 1.0, rules['sharpe_weight'])
 sortino_weight = st.sidebar.slider("Sortino Weight", 0.0, 1.0, rules['sortino_weight'])
-stdev_weight = st.sidebar.slider(" Standard Deviation", 0.0, 1.0, rules['stdev_weight'])
+stdev_min = st.sidebar.slider(" Standard Deviation", 0, 100, rules['stdev_min'])
 top_n = st.sidebar.slider("Number of Top Funds", 5, 50, 10)
 
 # --- Fund Selection ---
@@ -131,7 +132,7 @@ top_n = st.sidebar.slider("Number of Top Funds", 5, 50, 10)
 # --- Column Display Selection ---
 # --- Filter, Score, and Select Top Funds ---
 df_filtered = filter_funds(df, include_category, aum_min)
-df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight,stdev_weight)
+df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight,stdev_min)
 
 # --- Manual Scheme Selection ---
 default_selection = list(df_scored.head(top_n)['SCHEMES'])
@@ -148,15 +149,10 @@ if 'Sharpe_Sortino_Score' in df_scored.columns:
         df_scored[['SCHEMES', 'Sharpe_Sortino_Score']],
         on='SCHEMES',
         how='left'
-    )
-if 'Weighted STDEV' in df_scored.columns:
-    final_selection = final_selection.merge(
-        df_scored[['SCHEMES', 'Weighted STDEV']],
-        on='SCHEMES',
-        how='left'
+    
     )
 # --- Column Customization ---
-default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score', 'Weighted STDEV', 'STANDARD DEV']
+default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score', 'STANDARD DEV']
 available_cols = df.columns.tolist()
 optional_cols = [col for col in available_cols if col not in default_cols]
 extra_cols_selected = st.multiselect("Select additional columns to display:", optional_cols, default=[])

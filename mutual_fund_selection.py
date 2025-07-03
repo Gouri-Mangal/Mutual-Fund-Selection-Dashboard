@@ -130,7 +130,7 @@ top_n = st.sidebar.slider("Number of Top Funds", 5, 50, 10)
 # --- Column Display Selection ---
 # --- Filter, Score, and Select Top Funds ---
 df_filtered = filter_funds(df, include_category, aum_min)
-df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight)
+df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight,stdev_weight)
 
 # --- Manual Scheme Selection ---
 default_selection = list(df_scored.head(top_n)['SCHEMES'])
@@ -150,7 +150,7 @@ if 'Sharpe_Sortino_Score' in df_scored.columns:
     )
 
 # --- Column Customization ---
-default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score']
+default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score', 'STANDARD DEVIATION']
 available_cols = df.columns.tolist()
 optional_cols = [col for col in available_cols if col not in default_cols]
 extra_cols_selected = st.multiselect("Select additional columns to display:", optional_cols, default=[])

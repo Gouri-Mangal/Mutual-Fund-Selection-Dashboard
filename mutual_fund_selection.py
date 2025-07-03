@@ -93,14 +93,15 @@ def filter_funds(df, include_category, aum_min):
 def score_funds(df, sharpe_weight, sortino_weight, stdev_weight):
     df['SHARPE RATIO'] = pd.to_numeric(df['SHARPE RATIO'], errors='coerce')
     df['SORTINO RATIO'] = pd.to_numeric(df['SORTINO RATIO'], errors='coerce')
-    df = df.dropna(subset=['SHARPE RATIO', 'SORTINO RATIO', 'STANDARD DEV'])
+    df['STANDARD DEV']= pd.to_numeric(df['STANDARD DEV'], errors='coerce')
+    # df = df.dropna(subset=['SHARPE RATIO', 'SORTINO RATIO'])
 
     df['Sharpe_Sortino_Score'] = (
         sharpe_weight * df['SHARPE RATIO'] +
         sortino_weight * df['SORTINO RATIO']
     )
 
-    df['Weighted STDEV'] = stdev_weight * df['STANDARD DEV']
+    df['Weighted STDEV'] = (stdev_weight * df['STANDARD DEV'])
     return df
 
 

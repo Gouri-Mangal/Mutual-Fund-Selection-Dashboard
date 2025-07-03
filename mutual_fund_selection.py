@@ -76,12 +76,12 @@ if view == "admin":
 
 # --- Rules and Helpers ---
 category_rules = {
-    "Not Selected": {"include_category": [], "aum_min": 0, "sharpe_weight": 0, "sortino_weight": 0},
-    "Conservative": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.0, "sortino_weight": 1.0},
-    "Moderate Conservative": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.25, "sortino_weight": 0.75},
-    "Moderate": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: focused"], "aum_min": 10000, "sharpe_weight": 0.5, "sortino_weight": 0.5},
-    "Moderate Aggressive": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused"], "aum_min": 10000, "sharpe_weight": 0.75, "sortino_weight": 0.25},
-    "Aggressive": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused", "equity: sectoral", "equity: small cap", "equity: thematic"], "aum_min": 10000, "sharpe_weight": 1.0, "sortino_weight": 0.0},
+    "Not Selected": {"include_category": [], "aum_min": 0, "sharpe_weight": 0, "sortino_weight": 0, "stdev_weight": 0},
+    "Conservative": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.0, "sortino_weight": 1.0,  "stdev_weight": 0.15},
+    "Moderate Conservative": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.25, "sortino_weight": 0.75, "stdev_weight": 0.15},
+    "Moderate": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: focused"], "aum_min": 10000, "sharpe_weight": 0.5, "sortino_weight": 0.5, "stdev_weight": 0.15},
+    "Moderate Aggressive": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused"], "aum_min": 10000, "sharpe_weight": 0.75, "sortino_weight": 0.25, "stdev_weight": 0.15},
+    "Aggressive": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused", "equity: sectoral", "equity: small cap", "equity: thematic"], "aum_min": 10000, "sharpe_weight": 1.0, "sortino_weight": 0.0, "stdev_weight": 0.15},
 }
 
 # Helper Functions
@@ -99,6 +99,8 @@ def score_funds(df, sharpe_weight, sortino_weight):
         sharpe_weight * df['SHARPE RATIO'] +
         sortino_weight * df['SORTINO RATIO']
     )
+
+    df['STANDARD DEVIATION'] = stdev_weight * df['STANDARD DEVIATION']
     return df
 
 
@@ -107,7 +109,7 @@ category = st.sidebar.selectbox("Select Risk Category", list(category_rules.keys
 rules = category_rules[category]
 if category == "Not Selected":
     st.warning("Please select a risk category to proceed.")
-    st.stop()
+    st.stop() 
 
 all_categories_raw = sorted(df['CATEGORY'].str.strip().str.lower().unique())
 all_categories = [cat.title() for cat in all_categories_raw]
@@ -119,6 +121,7 @@ include_category = [cat.lower() for cat in include_category_display]
 aum_min = st.sidebar.number_input("AUM Minimum (Cr)", value=rules['aum_min'])
 sharpe_weight = st.sidebar.slider("Sharpe Weight", 0.0, 1.0, rules['sharpe_weight'])
 sortino_weight = st.sidebar.slider("Sortino Weight", 0.0, 1.0, rules['sortino_weight'])
+stdev_weight = st.sidebar.slider(" Standard Deviation", 0.0, 1.0, rules['stdev_weight'])
 top_n = st.sidebar.slider("Number of Top Funds", 5, 50, 10)
 
 # --- Fund Selection ---

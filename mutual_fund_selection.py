@@ -88,7 +88,8 @@ category_rules = {
 def filter_funds(df, include_category, aum_min):
     df = df.copy()
     df['AUM(CR)'] = pd.to_numeric(df['AUM(CR)'], errors='coerce')
-    return df[df['CATEGORY'].str.strip().str.lower().isin(include_category) & (df['AUM(CR)'] >= aum_min)]
+    df['STANDARD DEV'] = pd.to_numeric(df['STANDARD DEV'], errors='coerce') 
+    return df[df['CATEGORY'].str.strip().str.lower().isin(include_category) & (df['AUM(CR)'] >= aum_min) & (df['STANDARD DEV']<=15)]
 
 
 def score_funds(df, sharpe_weight, sortino_weight, stdev_min):
@@ -101,7 +102,6 @@ def score_funds(df, sharpe_weight, sortino_weight, stdev_min):
         sharpe_weight * df['SHARPE RATIO'] +
         sortino_weight * df['SORTINO RATIO']
     )
-    df['STANDARD DEV'] = df['STANDARD DEV'] <= stdev_min
     
     return df
 
@@ -123,7 +123,7 @@ include_category = [cat.lower() for cat in include_category_display]
 aum_min = st.sidebar.number_input("AUM Minimum (Cr)", value=rules['aum_min'])
 sharpe_weight = st.sidebar.slider("Sharpe Weight", 0.0, 1.0, rules['sharpe_weight'])
 sortino_weight = st.sidebar.slider("Sortino Weight", 0.0, 1.0, rules['sortino_weight'])
-stdev_min = st.sidebar.slider(" Standard Deviation", 0, 100, rules['stdev_min'])
+stdev_min = st.sidebar.number_input(" Standard Deviation",value= rules['stdev_min'])
 top_n = st.sidebar.slider("Number of Top Funds", 5, 50, 10)
 
 # --- Fund Selection ---
@@ -131,8 +131,8 @@ top_n = st.sidebar.slider("Number of Top Funds", 5, 50, 10)
 
 # --- Column Display Selection ---
 # --- Filter, Score, and Select Top Funds ---
-df_filtered = filter_funds(df, include_category, aum_min)
-df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight,stdev_min)
+df_filtered = filter_funds(df, include_category, aum_min, stdev_min)
+df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight)
 
 # --- Manual Scheme Selection ---
 default_selection = list(df_scored.head(top_n)['SCHEMES'])

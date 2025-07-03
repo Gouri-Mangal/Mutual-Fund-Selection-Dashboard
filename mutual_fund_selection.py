@@ -149,9 +149,14 @@ if 'Sharpe_Sortino_Score' in df_scored.columns:
         on='SCHEMES',
         how='left'
     )
-
+if 'Weighted STDEV' in df_scored.columns:
+    final_selection = final_selection.merge(
+        df_scored[['SCHEMES', 'Weighted STDEV']],
+        on='SCHEMES',
+        how='left'
+    )
 # --- Column Customization ---
-default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score', 'Weighted STDEV']
+default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score', 'Weighted STDEV', 'STANDARD DEV']
 available_cols = df.columns.tolist()
 optional_cols = [col for col in available_cols if col not in default_cols]
 extra_cols_selected = st.multiselect("Select additional columns to display:", optional_cols, default=[])

@@ -90,10 +90,10 @@ def filter_funds(df, include_category, aum_min):
     df['AUM(CR)'] = pd.to_numeric(df['AUM(CR)'], errors='coerce')
     return df[df['CATEGORY'].str.strip().str.lower().isin(include_category) & (df['AUM(CR)'] >= aum_min)]
 
-def score_funds(df, sharpe_weight, sortino_weight):
+def score_funds(df, sharpe_weight, sortino_weight, stdev_weight):
     df['SHARPE RATIO'] = pd.to_numeric(df['SHARPE RATIO'], errors='coerce')
     df['SORTINO RATIO'] = pd.to_numeric(df['SORTINO RATIO'], errors='coerce')
-    df = df.dropna(subset=['SHARPE RATIO', 'SORTINO RATIO'])
+    df = df.dropna(subset=['SHARPE RATIO', 'SORTINO RATIO', 'STANDARD DEVIATION'])
 
     df['Sharpe_Sortino_Score'] = (
         sharpe_weight * df['SHARPE RATIO'] +

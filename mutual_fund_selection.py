@@ -100,7 +100,7 @@ def score_funds(df, sharpe_weight, sortino_weight, stdev_weight):
         sortino_weight * df['SORTINO RATIO']
     )
 
-    df['STANDARD DEV'] = stdev_weight * df['STANDARD DEV']
+    df['Weighted STDEV'] = stdev_weight * df['STANDARD DEV']
     return df
 
 

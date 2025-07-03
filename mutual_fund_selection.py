@@ -85,11 +85,11 @@ category_rules = {
 }
 
 # Helper Functions
-def filter_funds(df, include_category, aum_min):
+def filter_funds(df, include_category, aum_min, stdev_min):
     df = df.copy()
     df['AUM(CR)'] = pd.to_numeric(df['AUM(CR)'], errors='coerce')
     df['STANDARD DEV'] = pd.to_numeric(df['STANDARD DEV'], errors='coerce') 
-    return df[df['CATEGORY'].str.strip().str.lower().isin(include_category) & (df['AUM(CR)'] >= aum_min) & (df['STANDARD DEV']<=15)]
+    return df[df['CATEGORY'].str.strip().str.lower().isin(include_category) & (df['AUM(CR)'] >= aum_min) & (df['STANDARD DEV']<=stdev_min)]
 
 
 def score_funds(df, sharpe_weight, sortino_weight, stdev_min):

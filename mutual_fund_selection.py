@@ -133,6 +133,7 @@ top_n = st.sidebar.slider("Number of Top Funds", 5, 50, 10)
 # --- Filter, Score, and Select Top Funds ---
 df_filtered = filter_funds(df, include_category, aum_min, stdev_min)
 df_scored = score_funds(df_filtered, sharpe_weight, sortino_weight)
+df_scored = df_scored.sort_values('Sharpe_Sortino_Score', ascending=False)
 
 # --- Manual Scheme Selection ---
 default_selection = list(df_scored.head(top_n)['SCHEMES'])

@@ -93,14 +93,14 @@ def filter_funds(df, include_category, aum_min):
 def score_funds(df, sharpe_weight, sortino_weight, stdev_weight):
     df['SHARPE RATIO'] = pd.to_numeric(df['SHARPE RATIO'], errors='coerce')
     df['SORTINO RATIO'] = pd.to_numeric(df['SORTINO RATIO'], errors='coerce')
-    df = df.dropna(subset=['SHARPE RATIO', 'SORTINO RATIO', 'STANDARD DEVIATION'])
+    df = df.dropna(subset=['SHARPE RATIO', 'SORTINO RATIO', 'STANDARD DEV'])
 
     df['Sharpe_Sortino_Score'] = (
         sharpe_weight * df['SHARPE RATIO'] +
         sortino_weight * df['SORTINO RATIO']
     )
 
-    df['STANDARD DEVIATION'] = stdev_weight * df['STANDARD DEVIATION']
+    df['STANDARD DEV'] = stdev_weight * df['STANDARD DEV']
     return df
 
 
@@ -150,7 +150,7 @@ if 'Sharpe_Sortino_Score' in df_scored.columns:
     )
 
 # --- Column Customization ---
-default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score', 'STANDARD DEVIATION']
+default_cols = ['SCHEMES', 'CATEGORY', 'AUM(CR)', 'SHARPE RATIO', 'SORTINO RATIO', 'Sharpe_Sortino_Score', 'STANDARD DEV']
 available_cols = df.columns.tolist()
 optional_cols = [col for col in available_cols if col not in default_cols]
 extra_cols_selected = st.multiselect("Select additional columns to display:", optional_cols, default=[])

@@ -77,11 +77,11 @@ if view == "admin":
 # --- Rules and Helpers ---
 category_rules = {
     "Not Selected": {"include_category": [], "aum_min": 0, "sharpe_weight": 0, "sortino_weight": 0, "stdev_min": 0},
-    "Conservative": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.0, "sortino_weight": 1.0,  "stdev_min": 15.00},
-    "Moderate Conservative": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.25, "sortino_weight": 0.75, "stdev_min": 15.00},
-    "Moderate": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: index", "equity: focused"], "aum_min": 10000, "sharpe_weight": 0.5, "sortino_weight": 0.5, "stdev_min": 15.00},
-    "Moderate Aggressive": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused"], "aum_min": 10000, "sharpe_weight": 0.75, "sortino_weight": 0.25, "stdev_min": 15.00},
-    "Aggressive": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused", "equity: sectoral", "equity: small cap", "equity: thematic"], "aum_min": 10000, "sharpe_weight": 1.0, "sortino_weight": 0.0, "stdev_min": 15.00},
+    "Conservative": {"include_category": [ "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.0, "sortino_weight": 1.0,  "stdev_min": 15.00},
+    "Moderate Conservative": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: large cap", "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.25, "sortino_weight": 0.75, "stdev_min": 15.00},
+    "Moderate": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: large cap", "equity: index", "equity: focused", "equity: dividend yield", "equity: value" ], "aum_min": 10000, "sharpe_weight": 0.5, "sortino_weight": 0.5, "stdev_min": 15.00},
+    "Moderate Aggressive": {"include_category": ["equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused",  "equity: index", "equity: dividend yield", "equity: value"], "aum_min": 10000, "sharpe_weight": 0.75, "sortino_weight": 0.25, "stdev_min": 15.00},
+    "Aggressive": {"include_category": ["equity: dividend yield", "equity: value", "equity: index", "equity: flexi cap", "equity: large & mid cap", "equity: multi cap", "equity: large cap", "equity: mid cap", "equity: focused", "equity: sectoral", "equity: small cap", "equity: thematic"], "aum_min": 10000, "sharpe_weight": 1.0, "sortino_weight": 0.0, "stdev_min": 15.00},
 }
 
 # Helper Functions
@@ -205,7 +205,7 @@ if view == "admin":
 
     required_csv_names = selected_mapping['CSV'].dropna().unique()
     fund_files = [f for f in uploaded_csvs if f.name.replace('.csv', '') in required_csv_names]
-
+    
     if st.button("Show Overlap Heatmap"):
         if fund_files:
             fund_dfs = {}

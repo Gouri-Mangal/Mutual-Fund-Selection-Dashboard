@@ -215,11 +215,11 @@ if view == "admin":
                 fund_dfs[f.name] = df_f
                 unique_stocks.update(df_f['Invested In'])
 
-            stock_df = pd.DataFrame(0, index=sorted(unique_stocks), columns=[f.name for f in fund_files])
+            stock_df = pd.DataFrame(0.0, index=sorted(unique_stocks), columns=[f.name for f in fund_files], dtype=float)
             for f in fund_files:
                 df_f = fund_dfs[f.name]
                 for _, row in df_f.iterrows():
-                    stock_df.at[row['Invested In'], f.name] = row['% of Total Holding']
+                    stock_df.at[row['Invested In'], f.name] = float(row['% of Total Holding'])
 
             corr_mf = stock_df.corr()
             st.write("Correlation Heatmap")
